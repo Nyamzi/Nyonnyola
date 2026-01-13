@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="560" viewBox="0 0 400 560" fill="none">
+  <rect x="8" y="8" width="384" height="544" rx="20" fill="#ffffff" stroke="#e6eefc" stroke-width="2"/>
+  <rect x="28" y="36" width="344" height="488" rx="14" fill="#f5f8ff"/>
+  <g transform="translate(40,80)">
+    <rect width="320" height="160" rx="12" fill="#5b7cff" />
+    <text x="160" y="96" fill="#fff" font-size="36" font-weight="700" font-family="Poppins, Arial, sans-serif" text-anchor="middle">Fun</text>
+  </g>
+  <g transform="translate(40,260)">
+    <rect width="320" height="160" rx="12" fill="#cfe0ff" />
+    <text x="160" y="96" fill="#0b2" font-size="32" font-weight="600" font-family="Poppins, Arial, sans-serif" text-anchor="middle">Party</text>
+  </g>
+</svg>
