@@ -29,7 +29,7 @@ A lightweight, fun word-guessing game prototype built with React (Vite), designe
 1. Navigate to the project folder:
 
 ```powershell
-cd "c:\Users\david\OneDrive\Desktop\WORK-APPLICATION\OTYO"
+cd "c:\Users\david\OneDrive\Desktop\WORK-APPLICATION\NYONNYOLA"
 ```
 
 2. Install dependencies:
@@ -79,7 +79,7 @@ VITE_FIREBASE_APP_ID=your-app-id
 ## Project Structure
 
 ```
-OTYO/
+NYONNYOLA/
 ├── src/
 │   ├── components/       # Player setup, Lobby, GameScreen, Scoreboard, WordManager
 │   ├── data/             # Sample words JSON (words.json)
