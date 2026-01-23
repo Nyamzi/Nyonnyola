@@ -1,8 +1,22 @@
 import React, { useEffect, useState, useRef } from 'react'
 import sampleWords from '../data/words.json'
+import otyo1 from '../assets/otyo1.png'
+import otyo2 from '../assets/otyo2.jpg'
+import otyo3 from '../assets/otyo3.jpg'
+import otyo4 from '../assets/otyo4.jpg'
+import otyo5 from '../assets/otyo5.jpg'
+import otyo6 from '../assets/otyo6.jpg'
+import otyo7 from '../assets/otyo7.jpg'
 
-function shuffle(a){
-  return a.sort(()=> Math.random() - 0.5)
+function shuffle(list){
+  const a = [...list]
+  for(let i = a.length - 1; i > 0; i -= 1){
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = a[i]
+    a[i] = a[j]
+    a[j] = temp
+  }
+  return a
 }
 
 function playTone(type = 'correct'){
@@ -41,10 +55,12 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
   const [startScores, setStartScores] = useState(() => initialPlayers.map(p=> ({ id: p.id, score: p.score })))
   const [turnState, setTurnState] = useState('idle') // 'idle' | 'playing' | 'review'
   const [turnSummary, setTurnSummary] = useState(null)
+  const [showAllCorrectMessage, setShowAllCorrectMessage] = useState(false)
   const timerRef = useRef(null)
+  const allCorrectTimeoutRef = useRef(null)
 
   function buildDeck(){
-    const shuffled = shuffle([...sampleWords])
+    const shuffled = shuffle(sampleWords)
     const cards = []
     const perCard = 7
     for(let i=0;i<shuffled.length;i+=perCard){
@@ -76,14 +92,20 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
     }
   }, [players, onUpdatePlayers])
 
-  function computeTurnSummary(){
+  function computeTurnSummaryFrom(states){
     const card = deck[currentCardIndex] || []
-    const correct = wordStates.filter(s => s === 'correct').length
-    const skipped = wordStates.filter(s => s === 'skipped').length
+    const correct = states.filter(s => s === 'correct').length
+    const skipped = states.filter(s => s === 'skipped').length
     const total = card.length
+    const unguessed = Math.max(0, total - correct - skipped)
+    const allCorrect = total > 0 && correct === total
     const start = startScores.find(s => s.id === players[currentExplainerIndex]?.id)
     const earned = (players[currentExplainerIndex]?.score || 0) - (start ? start.score : 0)
-    return { correct, skipped, total, earned }
+    return { correct, skipped, unguessed, total, earned, allCorrect }
+  }
+
+  function computeTurnSummary(){
+    return computeTurnSummaryFrom(wordStates)
   }
 
   function startTimer(){
@@ -104,11 +126,25 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
   }
 
   useEffect(()=>{
-    // start the timer once the deck is ready
-    if(deck.length) startTimer()
     return ()=> clearInterval(timerRef.current)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deck])
+  }, [])
+
+  useEffect(()=>{
+    return ()=> clearTimeout(allCorrectTimeoutRef.current)
+  }, [])
+
+  useEffect(()=>{
+    if(turnState !== 'playing') return
+    if([15, 10, 5, 3, 2, 1].includes(timeLeft)){
+      playTone('wrong')
+    }
+  }, [timeLeft, turnState])
+
+  useEffect(()=>{
+    if(wordIndex >= (deck[currentCardIndex] || []).length){
+      setWordIndex(0)
+    }
+  }, [currentCardIndex, deck, wordIndex])
 
   function triggerFlip(){
     setFlip(true)
@@ -155,6 +191,17 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
       }
 
       next[i] = newState
+      const summary = computeTurnSummaryFrom(next)
+      if(summary.allCorrect){
+        clearInterval(timerRef.current)
+        setTurnState('review')
+        setTurnSummary(summary)
+        setShowAllCorrectMessage(true)
+        clearTimeout(allCorrectTimeoutRef.current)
+        allCorrectTimeoutRef.current = setTimeout(()=>{
+          setShowAllCorrectMessage(false)
+        }, 10000)
+      }
       return next
     })
   }
@@ -192,6 +239,8 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
       setTurnState('idle')
       setTurnSummary(null)
       setTimeLeft(options.roundTime)
+      setShowAllCorrectMessage(false)
+      clearTimeout(allCorrectTimeoutRef.current)
     }, 800)
   }
 
@@ -218,9 +267,8 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
   function correct(){
     // mark current focused word as correct and advance
     const idx = wordIndex || 0
+    if(!(deck[currentCardIndex] || []).length) return
     toggleWord(idx, 'correct')
-    playTone('correct')
-    spawnConfetti()
     triggerFlip()
     setTimeout(()=> setWordIndex(i => {
       const next = (typeof i === 'number' ? i : idx) + 1
@@ -230,11 +278,11 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
 
   function skip(){
     const idx = wordIndex || 0
+    if(!(deck[currentCardIndex] || []).length) return
     toggleWord(idx, 'skipped')
     if(options.penalty){
       // penalty handled in toggleWord
     }
-    playTone('wrong')
     triggerFlip()
     setTimeout(()=> setWordIndex(i => {
       const next = (typeof i === 'number' ? i : idx) + 1
@@ -250,6 +298,27 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
   // current helper values for rendering
   const explainer = players[currentExplainerIndex] || { name: 'Player' }
   const currentCard = deck[currentCardIndex] || []
+  const roundNumber = roundsHistory.length + 1
+  const cardImages = [otyo1, otyo2, otyo3, otyo4, otyo5, otyo6, otyo7]
+  const cardImage = cardImages.length ? cardImages[(roundNumber - 1) % cardImages.length] : null
+
+  useEffect(()=>{
+    function handleKeyDown(e){
+      if(turnState !== 'playing') return
+      if(e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault()
+        correct()
+      } else if(e.key === 's' || e.key === 'S'){
+        e.preventDefault()
+        skip()
+      } else if(e.key === 'd' || e.key === 'D'){
+        e.preventDefault()
+        doneTurn()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return ()=> window.removeEventListener('keydown', handleKeyDown)
+  }, [turnState, wordIndex, currentCardIndex, currentCard.length])
 
   function startTurn(){
     setStartScores(players.map(p=> ({ id: p.id, score: p.score })))
@@ -264,12 +333,28 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
 
   return (
     <div className="panel">
-      <h2>Round — Explainer: {explainer.name} {turnState === 'idle' ? ' — Ready' : turnState === 'playing' ? ' — Playing' : ' — Review'}</h2>
+      <h2>Round {roundNumber} — Explainer: {explainer.name} {turnState === 'idle' ? ' — Ready' : turnState === 'playing' ? ' — Playing' : ' — Review'}</h2>
+      <div className="game-meta">
+        <div className="turn-badge">Team guesses while {explainer.name} describes</div>
+        <div className="round-meta">{currentCard.length} words • {options.roundTime}s turn • {options.penalty ? 'Skip penalty on' : 'No skip penalty'}</div>
+      </div>
+      <div className="shortcut-hint">Shortcuts: Space/Enter = Correct, S = Skip, D = Done</div>
       <div className="game-area" style={{position:'relative'}}>
-        <div className={`card ${flip ? 'flip' : ''}`} aria-live="polite">
+        {turnState === 'playing' && currentCard.length > 0 && (
+          <div className="focus-word">
+            <div className="focus-label">Current word</div>
+            <div className="focus-value">{currentCard[wordIndex] || currentCard[0]}</div>
+            <div className="focus-sub">Word {Math.min(wordIndex + 1, currentCard.length)} of {currentCard.length}</div>
+          </div>
+        )}
+        <div
+          className={`card ${turnState} ${cardImage ? 'with-image' : ''} ${flip ? 'flip' : ''}`}
+          style={cardImage ? { '--card-image': `url(${cardImage})` } : undefined}
+          aria-live="polite"
+        >
           {turnState === 'playing' ? (
             <>
-              <div className="card-words" style={{display:'flex', flexWrap:'wrap', gap:10, justifyContent:'center'}}>
+              <div className="card-words">
                 {currentCard.map((w, i) => {
                   const state = wordStates[i] || 'pending'
                   return (
@@ -285,11 +370,37 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
             </>
           ) : (
             turnState === 'idle' ? (
-              <div style={{padding:40, textAlign:'center', color:'rgba(7,18,44,0.6)'}}>Card hidden — press <strong>Start</strong> to reveal</div>
+              <div style={{padding:40, textAlign:'center', color:'rgba(7,18,44,0.6)'}}>
+                Card hidden — press <strong>Start</strong> when your team is ready.
+                <div style={{marginTop:10, fontSize:13, color:'var(--muted)'}}>Describe the words without saying them. Tap a word to mark correct.</div>
+              </div>
             ) : (
               <div style={{padding:20, textAlign:'center'}}>
-                <h4>Turn summary</h4>
-                <div>{turnSummary ? `${turnSummary.correct} correct • ${turnSummary.skipped} skipped • ${turnSummary.total} total` : 'No activity'}</div>
+                {turnSummary?.allCorrect && showAllCorrectMessage ? (
+                  <>
+                    <h3>Congratulations!</h3>
+                    <div style={{fontSize:18, fontWeight:700}}>You hit all 7 🎉</div>
+                    <div style={{marginTop:6, fontSize:13, color:'var(--muted)'}}>Showing words in 10 seconds...</div>
+                  </>
+                ) : (
+                  <>
+                    <h4>Turn summary</h4>
+                    <div>{turnSummary ? `${turnSummary.correct} guessed • ${turnSummary.unguessed} unguessed • ${turnSummary.total} total` : 'No activity'}</div>
+                    {turnSummary?.allCorrect && (
+                      <div style={{marginTop:14}}>
+                        <div className="card-words">
+                          {currentCard.map((w, i) => (
+                            <div key={i} className="word-chip correct">
+                              <svg className="word-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21 11l-8-8H3v10l8 8 10-10zM7 7a2 2 0 110-4 2 2 0 010 4z" /></svg>
+                              <span className="word-label">{w}</span>
+                              <span style={{marginLeft:8, opacity:0.9}}>✓</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
                 <div style={{marginTop:8, fontSize:13, color:'var(--muted)'}}>Earned this turn: {turnSummary ? turnSummary.earned : 0}</div>
               </div>
             )
@@ -302,6 +413,8 @@ export default function GameScreen({ players: initialPlayers, options, onEnd, on
           {turnState === 'idle' && <button className="primary" onClick={startTurn}>Start</button>}
           {turnState === 'playing' && (
             <>
+              <button onClick={correct} className="correct">Correct</button>
+              <button onClick={skip} className="skip">Skip</button>
               <button onClick={doneTurn} className="primary">Done</button>
             </>
           )}

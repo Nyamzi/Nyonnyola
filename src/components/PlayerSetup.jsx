@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, query, collection, orderBy, limit, getDocs, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 
 export default function PlayerSetup({ onNext, user }){

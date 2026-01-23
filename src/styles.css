@@ -113,19 +113,37 @@ h1,h2,h3{ font-family:inherit; color:#07122c; font-weight:700 }
 .player-card{ display:flex; gap:8px; align-items:center; padding:8px }
 .avatar{ width:44px; height:44px; border-radius:50%; background:#eee; display:flex; align-items:center; justify-content:center; font-weight:700 }
 .game-area{ display:flex; gap:20px; align-items:flex-start }
-.card{ flex:1; min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:14px; background:linear-gradient(180deg,#ffffff,#f5f7fb); padding:26px; font-size:20px; font-weight:700; box-shadow:var(--card-shadow) }
-.card .card-words{ width:100%; max-width:760px; display:flex; gap:14px; flex-wrap:wrap; justify-content:center; align-items:center }
-.word-chip{ display:flex; align-items:center; justify-content:space-between; min-width:140px; padding:12px 16px; border-radius:12px; background:var(--chip-pending); border:none; font-size:16px; font-weight:700; color:#07122c; box-shadow: none; transition: transform .16s ease, box-shadow .16s ease, opacity .12s ease }
-.word-chip:hover{ transform: translateY(-2px); box-shadow: var(--chip-hover) }
-.word-chip .word-icon{ color:rgba(12,15,28,0.65); opacity:0.95 }
-.word-chip .word-label{ flex:1; text-align:left; margin-left:8px }
-.word-chip.correct{ background:var(--chip-correct); color:#fff }
-.word-chip.skipped{ background:var(--chip-skipped); color:#fff }
-.word-chip.focused{ box-shadow: 0 8px 24px rgba(8,10,16,0.06); transform: translateY(-4px) }
+.card{ flex:1; width:100%; min-height:520px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:20px; background:linear-gradient(180deg,#ffffff,#f3f7ff); background-size:180% 180%; padding:56px; font-size:20px; font-weight:700; box-shadow:0 24px 54px rgba(9,15,28,0.1); position:relative; overflow:hidden; border:1px solid rgba(7,18,44,0.07); animation: card-breathe 8s ease-in-out infinite }
+.card.with-image{ background-image: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(243,247,255,0.72)), var(--card-image); background-size:180% 180%, cover; background-position: 0% 0%, center; background-repeat: no-repeat; background-blend-mode: normal }
+.card::before{ content:''; position:absolute; inset:-40%; background:radial-gradient(circle at 15% 20%, rgba(80,195,120,0.16), transparent 50%), radial-gradient(circle at 85% 80%, rgba(255,159,135,0.18), transparent 55%); opacity:0.85; pointer-events:none; animation: card-glow 10s ease-in-out infinite }
+.card::after{ content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(255,255,255,0.7), transparent 55%); mix-blend-mode:screen; pointer-events:none; animation: card-shine 7s ease-in-out infinite }
+.card .card-words{ width:100%; max-width:880px; display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:14px; justify-content:center; align-items:stretch; z-index:1; margin-top:6px }
+.card.review{ min-height:320px; padding:32px; animation:none }
+.card.review::before,
+.card.review::after{ animation:none; opacity:0.5 }
+.game-meta{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin:6px 0 4px }
+.turn-badge{ font-weight:700; color:#0b1b2b; background:rgba(7,18,44,0.04); padding:6px 10px; border-radius:10px }
+.round-meta{ color:var(--muted); font-size:13px }
+.shortcut-hint{ font-size:12px; color:var(--muted); margin-bottom:10px }
+.focus-word{ display:flex; flex-direction:column; gap:4px; align-items:flex-start; padding:12px 14px; border-radius:12px; background:rgba(80,195,120,0.12); border:1px solid rgba(80,195,120,0.35); min-width:220px }
+.focus-label{ font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:rgba(7,18,44,0.6) }
+.focus-value{ font-size:20px; font-weight:700; color:#0b1b2b }
+.focus-sub{ font-size:12px; color:var(--muted) }
+.word-chip{ display:flex; align-items:center; justify-content:space-between; min-height:58px; padding:12px 16px; border-radius:16px; background:linear-gradient(180deg,#ffffff,#f7f8fb); border:1px solid rgba(12,15,25,0.08); font-size:16px; font-weight:700; color:#07122c; box-shadow: 0 10px 20px rgba(9,15,28,0.08); text-shadow: 0 1px 2px rgba(255,255,255,0.6); transition: transform .16s ease, box-shadow .16s ease, opacity .12s ease, border .16s ease }
+.word-chip:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px rgba(8,10,16,0.12) }
+.word-chip .word-icon{ color:rgba(12,15,28,0.5); opacity:0.9 }
+.word-chip .word-label{ flex:1; text-align:left; margin-left:8px; letter-spacing:0.3px; font-size:16px; text-transform:capitalize }
+.word-chip.correct{ background:linear-gradient(180deg,#1f7a59,#0f5a3f); border-color:rgba(20,90,64,0.4); color:#fff }
+.word-chip.correct .word-icon{ color:rgba(255,255,255,0.9) }
+.word-chip.skipped{ background:linear-gradient(180deg,#f59e0b,#e07a12); border-color:rgba(224,122,18,0.5); color:#fff }
+.word-chip.skipped .word-icon{ color:rgba(255,255,255,0.9) }
+.word-chip.focused{ border-color:rgba(80,195,120,0.65); box-shadow: 0 16px 30px rgba(80,195,120,0.2); transform: translateY(-4px); background:linear-gradient(180deg,#ffffff,#eefbf4) }
 
 .timer{ font-size:28px; color:var(--muted); font-weight:600 }
 
 .controls, .buttons{ display:flex; gap:10px; align-items:center }
+.buttons{ flex-direction:column; align-items:stretch }
+.buttons button{ width:100% }
 
 /* unified button token */
 .controls button, .buttons button, .primary, .secondary, .nav-link, .auth-actions button{ padding:10px 14px; border-radius:10px; border:none; font-weight:700; cursor:pointer; box-shadow:none; background:var(--btn-bg, transparent); color:var(--btn-color, #0b1b2b); transition: transform .12s ease, box-shadow .12s ease, background .12s ease }
@@ -195,21 +213,38 @@ h1,h2,h3{ font-family:inherit; color:#07122c; font-weight:700 }
 
 /* Responsive small tweaks */
 @media (max-width:720px){
-	.card{ min-height:200px; padding:18px }
-	.word-chip{ min-width:120px; padding:10px 12px; font-size:15px }
+	.card{ min-height:360px; padding:32px }
+	.word-chip{ min-height:52px; padding:10px 12px; font-size:15px }
 	.buttons{ flex-direction:column; width:100% }
 	.buttons button{ width:100% }
+  .game-meta{ flex-direction:column; align-items:flex-start }
+  .game-area{ flex-direction:column }
+  .focus-word{ width:100% }
 }
 
 /* Word chip styles */
-.word-chip{ background:linear-gradient(180deg,#fff,#f7f7f7); cursor:pointer }
-.word-chip.correct{ background:linear-gradient(180deg,#e6ffef,#d1f7e4); border-color:#c7f0d6 }
-.word-chip.skipped{ background:linear-gradient(180deg,#fff3e6,#fff0e0); border-color:#ffd9b8 }
+.word-chip{ cursor:pointer }
 
 /* Animations */
 .card{ transition: transform 0.35s ease, box-shadow 0.35s ease }
 .card.flip{ transform: rotateY(180deg); box-shadow: 0 14px 30px rgba(0,0,0,0.12) }
-.card .card-foot{ font-size:12px; color:var(--muted); margin-top:8px }
+.card .card-foot{ font-size:12px; color:var(--muted); margin-top:10px; padding:6px 10px; background:rgba(7,18,44,0.05); border-radius:999px }
+
+@keyframes card-breathe{
+  0%{ background-position: 0% 0%; box-shadow:0 24px 54px rgba(9,15,28,0.1) }
+  50%{ background-position: 100% 100%; box-shadow:0 28px 60px rgba(9,15,28,0.12) }
+  100%{ background-position: 0% 0%; box-shadow:0 24px 54px rgba(9,15,28,0.1) }
+}
+@keyframes card-glow{
+  0%{ transform: translate(-2%, -2%) scale(1) }
+  50%{ transform: translate(2%, 2%) scale(1.02) }
+  100%{ transform: translate(-2%, -2%) scale(1) }
+}
+@keyframes card-shine{
+  0%{ opacity:0.4 }
+  50%{ opacity:0.75 }
+  100%{ opacity:0.4 }
+}
 
 .timer.warn{ color:#ef4444; font-weight:700; animation: pulse 1s infinite }
 @keyframes pulse{ 0%{ transform: scale(1)} 50%{ transform: scale(1.06)} 100%{ transform: scale(1)} }
