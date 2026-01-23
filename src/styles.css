@@ -114,9 +114,10 @@ h1,h2,h3{ font-family:inherit; color:#07122c; font-weight:700 }
 .avatar{ width:44px; height:44px; border-radius:50%; background:#eee; display:flex; align-items:center; justify-content:center; font-weight:700 }
 .game-area{ display:flex; gap:20px; align-items:flex-start }
 .card{ flex:1; width:100%; min-height:520px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:20px; background:linear-gradient(180deg,#ffffff,#f3f7ff); background-size:180% 180%; padding:56px; font-size:20px; font-weight:700; box-shadow:0 24px 54px rgba(9,15,28,0.1); position:relative; overflow:hidden; border:1px solid rgba(7,18,44,0.07); animation: card-breathe 8s ease-in-out infinite }
-.card.with-image{ background-image: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(243,247,255,0.72)), var(--card-image); background-size:180% 180%, cover; background-position: 0% 0%, center; background-repeat: no-repeat; background-blend-mode: normal }
+.card.with-image{ background-image: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(243,247,255,0.72)), var(--card-image); background-size:180% 180%, 100% 100%; background-position: 0% 0%, center; background-repeat: no-repeat; background-blend-mode: normal }
 .card::before{ content:''; position:absolute; inset:-40%; background:radial-gradient(circle at 15% 20%, rgba(80,195,120,0.16), transparent 50%), radial-gradient(circle at 85% 80%, rgba(255,159,135,0.18), transparent 55%); opacity:0.85; pointer-events:none; animation: card-glow 10s ease-in-out infinite }
 .card::after{ content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(255,255,255,0.7), transparent 55%); mix-blend-mode:screen; pointer-events:none; animation: card-shine 7s ease-in-out infinite }
+.card.with-image::after{ background:linear-gradient(135deg, rgba(255,255,255,0.55), transparent 60%); }
 .card .card-words{ width:100%; max-width:880px; display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:14px; justify-content:center; align-items:stretch; z-index:1; margin-top:6px }
 .card.review{ min-height:320px; padding:32px; animation:none }
 .card.review::before,
