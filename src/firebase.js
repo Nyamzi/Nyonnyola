@@ -1,32 +1,39 @@
+// src/firebase.js
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getAnalytics } from 'firebase/analytics'
 import { getFirestore } from 'firebase/firestore'
 
-// Firebase config from environment variables
+/**
+ * Firebase configuration
+ * Note: For security, consider moving these values to environment variables
+ */
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+  apiKey: 'AIzaSyA2Om5bhZEb2X7C6KA8rFikZPEnIJdpv_M',
+  authDomain: 'nyonnyola.firebaseapp.com',
+  projectId: 'nyonnyola',
+  storageBucket: 'nyonnyola.firebasestorage.app',
+  messagingSenderId: '339621702416',
+  appId: '1:339621702416:web:d2204931bba847e0909395',
+  measurementId: 'G-N76MHME6ZP'
 }
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig)
 
-// Analytics is browser-only
+// Initialize Analytics (browser-only)
 let analytics
 try {
   if (typeof window !== 'undefined') {
     analytics = getAnalytics(app)
   }
 } catch (e) {
-  // ignore analytics init errors when not available
+  // Ignore analytics errors when not available (SSR or testing)
+  // console.warn('Firebase analytics not available', e)
 }
 
+// Export Firebase services
 export const auth = getAuth(app)
 export const db = getFirestore(app)
-export default app
 export { analytics }
+export default app
